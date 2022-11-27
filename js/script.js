@@ -1,5 +1,6 @@
 //This div is where your profile information will appear//
 const overview = document.querySelector(".overview");
+const repoList = document.querySelector("ul");
 const username = "tunge1";
 
 const profileData =  async function () {
@@ -24,4 +25,22 @@ const display = function (data) {
       <p><strong>Number of public repos:</strong> ${data.public_repos}</p>
     </div>`;
     overview.append(div);
+    displayRepos();
 };
+
+const displayRepos = async function () {
+    const ris = await fetch(`https://api.github.com/users/${username}/repos?sort=updated?per_page=100`);
+    const repoData = await ris.json();
+    repoInfo(repoData);
+};
+
+const repoInfo = function (repos) {
+    for (const  repo of repos) {
+        const li = document.createElement("li");
+        li.classList.add(".repo");
+        li.innerHTML = `<h3>${repo.name}</h3>`;
+        repoList.append(li);
+    };
+};
+
+
