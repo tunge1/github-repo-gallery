@@ -1,9 +1,11 @@
 //This div is where your profile information will appear//
 const overview = document.querySelector(".overview");
+const username = "tunge1";
 const repoList = document.querySelector("ul");
 const individualRepo = document.querySelector(".repos");
 const individualData = document.querySelector(".repo-data");
-const username = "tunge1";
+const backToButton = document.querySelector(".view-repos");
+const filterInput = document.querySelector(".filter-repos");
 
 const profileData =  async function () {
     const res = await fetch(`https://api.github.com/users/${username}`);
@@ -15,7 +17,7 @@ profileData();
 
 const display = function (data) {
     const div = document.createElement("div");
-    div.classList.add(".user-info");
+    div.classList.add("user-info");
     div.innerHTML = `
      <figure>
        <img alt="user avatar" src=${data.avatar_url} />
@@ -27,16 +29,17 @@ const display = function (data) {
       <p><strong>Number of public repos:</strong> ${data.public_repos}</p>
     </div>`;
     overview.append(div);
-    displayRepos();
+    displayRepos(username);
 };
 
-const displayRepos = async function () {
+const displayRepos = async function (username) {
     const ris = await fetch(`https://api.github.com/users/${username}/repos?sort=updated?per_page=100`);
     const repoData = await ris.json();
     displayInformation(repoData);
 };
 
 const displayInformation= function (repos) {
+    filterInput.classList.remove("hide");
     for (const repo of repos) {
         const li = document.createElement("li");
         li.classList.add(".repo");
@@ -49,7 +52,7 @@ repoList.addEventListener("click", function (e) {
     if (e.target.matches("h3")) {
         const repoName = e.target.innerText;
         specificRepo(repoName);
-    };
+    }
 });
 
 const specificRepo = async function (repoName) {
@@ -67,6 +70,7 @@ const specificRepo = async function (repoName) {
 };
 
 const specificRepoInformation = function (repoInfo, languages) {
+    backToButton.classList.remove("hide");
     individualData.innerHTML = "";
     individualData.classList.remove("hide");
     individualRepo.classList.add("hide");
@@ -80,3 +84,22 @@ const specificRepoInformation = function (repoInfo, languages) {
     individualData.append(div);
 };
 
+backToButton.addEventListener("click", function (e) {
+    individualRepo.classList.remove("hide");
+    individualData.classList.add("hide");
+    backToButton.classList.add("hide");
+});
+
+filterInput.addEventListener("input", function (e) {
+    const search = e.target.value;
+    const repos = document.querySelectorAll(".repo");
+    const lowercase = search.toLowerCase();
+    for (const repo of repos) {
+        const lowercaseValue = repo.innerText.toLowerCase();
+        if (lowercaseValue.includes(lowercase)) {
+        repo.classList.remove("hide");
+        } else {
+        repo.classList.add("hide");
+        }
+    }
+});
